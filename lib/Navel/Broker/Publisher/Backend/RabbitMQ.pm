@@ -7,10 +7,7 @@
 
 package Navel::Broker::Publisher::Backend::RabbitMQ 0.1;
 
-use strict;
-use warnings;
-
-use parent 'Navel::Base';
+use Navel::Base;
 
 use AnyEvent::RabbitMQ 1.19;
 
