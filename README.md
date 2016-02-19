@@ -3,7 +3,7 @@ navel-bcb-rabbitmq
 
 [![Build Status](https://travis-ci.org/Navel-IT/navel-bcb-rabbitmq.svg)](https://travis-ci.org/Navel-IT/navel-bcb-rabbitmq)
 
-This broker backend (`Navel::Broker::Publisher::Backend::RabbitMQ`) implements interfaces for [RabbitMQ](http://www.rabbitmq.com/documentation.html).
+This broker backend implements interfaces for [RabbitMQ](http://www.rabbitmq.com/documentation.html).
 
 backend_input
 -------------
