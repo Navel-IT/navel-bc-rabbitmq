@@ -8,7 +8,7 @@ This broker backend implements interfaces for [RabbitMQ](http://www.rabbitmq.com
 backend_input
 -------------
 
-- Publisher:
+- Publisher
 
 ```json
 {
@@ -25,6 +25,6 @@ backend_input
 }
 ```
 
-- Consumer:
+- Consumer
 
 Not yet available.
