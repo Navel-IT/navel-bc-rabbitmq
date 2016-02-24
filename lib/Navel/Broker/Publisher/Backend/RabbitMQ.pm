@@ -135,7 +135,7 @@ sub is_disconnecting {
 sub is_net_ready {
     my $net = shift;
 
-    blessed($net) eq 'AnyEvent::RabbitMQ';
+    blessed($net) && $net->isa('AnyEvent::RabbitMQ');
 }
 
 # sub AUTOLOAD {}
