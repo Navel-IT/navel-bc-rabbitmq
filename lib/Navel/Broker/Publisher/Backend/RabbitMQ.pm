@@ -38,7 +38,7 @@ sub publish {
             body => $options{serialized_event}
         );
     } else {
-        $options{logger}->('error', 'publisher has no channel opened.');
+        $options{logger}->('err', 'publisher has no channel opened.');
     }
 }
 
@@ -66,7 +66,7 @@ sub connect {
                     $options{logger}->('notice', 'channel opened.');
                 },
                 on_failure => sub {
-                    $options{logger}->('error',
+                    $options{logger}->('err',
                         [
                             'channel failure.',
                             \@_
@@ -79,7 +79,7 @@ sub connect {
             );
         },
         on_failure => sub {
-            $options{logger}->('error',
+            $options{logger}->('err',
                 [
                     'failure.',
                     \@_
@@ -87,7 +87,7 @@ sub connect {
             );
         },
         on_read_failure => sub {
-            $options{logger}->('error',
+            $options{logger}->('err',
                 [
                     'read failure.',
                     \@_
@@ -95,7 +95,7 @@ sub connect {
             );
         },
         on_return => sub {
-            $options{logger}->('error', 'unable to deliver frame.');
+            $options{logger}->('err', 'unable to deliver frame.');
         },
         on_close => sub {
             $options{logger}->('notice', 'disconnected.');
