@@ -15,3 +15,6 @@ before_install:
   - pushd ..
   - f_install_navel_dep navel-base
   - popd
+  - cpanm --notest Devel::Cover::Report::Coveralls
+after_success:
+  - cover -test -report coveralls
