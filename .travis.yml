@@ -1,8 +1,9 @@
+---
 language: perl
 perl:
-  - "5.22"
-  - "5.20"
-  - "5.18"
+  - '5.22'
+  - '5.20'
+  - '5.18'
 before_install:
   - |
       f_install_navel_dep() {
@@ -15,6 +16,6 @@ before_install:
   - pushd ..
   - f_install_navel_dep navel-base
   - popd
-  - cpanm --notest Devel::Cover::Report::Coveralls
+  - cpanm --quiet --notest Devel::Cover::Report::Coveralls
 after_success:
   - cover -test -report coveralls

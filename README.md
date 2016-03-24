@@ -21,19 +21,17 @@ backend_input
 
 - Publisher
 
-```json
-{
-    "host": "localhost",
-    "port": 5672,
-    "user": "guest",
-    "password": "guest",
-    "timeout": 0,
-    "vhost": "/",
-    "tls": 0,
-    "heartbeat": 30,
-    "exchange": "amq.topic",
-    "delivery_mode": 2
-}
+```yaml
+host: localhost
+port: 5672
+user: guest
+password: guest
+timeout: 0
+vhost: /
+tls: 0
+heartbeat: 30
+exchange: amq.topic
+delivery_mode: 2
 ```
 
 - Consumer
