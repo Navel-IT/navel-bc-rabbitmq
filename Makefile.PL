@@ -15,8 +15,8 @@ use ExtUtils::MakeMaker 6.64;
 my $min_perl_version = '5.18.0';
 
 WriteMakefile(
-    NAME => 'Navel::Broker::Publisher::Backend::RabbitMQ',
-    VERSION_FROM => 'lib/Navel/Broker/Publisher/Backend/RabbitMQ.pm',
+    NAME => 'Navel::Broker::Client::Fork::Publisher::Backend::RabbitMQ',
+    VERSION_FROM => 'lib/Navel/Broker/Client/Fork/Publisher/Backend/RabbitMQ.pm',
     ABSTRACT => 'navel-bcb-rabbitmq',
     AUTHOR => 'Yoann Le Garff, Nicolas Boquet and Yann Le Bras',
     LICENSE => 'GNU GPL v3',

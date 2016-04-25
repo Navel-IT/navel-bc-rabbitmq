@@ -11,7 +11,7 @@ use warnings;
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok('Navel::Broker::Publisher::Backend::RabbitMQ');
+    use_ok('Navel::Broker::Client::Fork::Publisher::Backend::RabbitMQ');
 }
 
 #-> main
