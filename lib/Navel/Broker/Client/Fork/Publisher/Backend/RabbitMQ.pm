@@ -21,22 +21,22 @@ my $net;
 #-> methods
 
 sub publish {
-    my ($done, $publisher_definition, $serialized_events) = @_;
+    my ($done, $meta, $definition, $serialized_events) = @_;
 
     if (my @channels = values %{$net->channels()}) {
         Navel::Broker::Client::Fork::Worker::log(
             [
                 'info',
-                'sending ' . @{$serialized_events} . ' event(s) to exchange ' . $publisher_definition->{backend_input}->{exchange} . '.'
+                'sending ' . @{$serialized_events} . ' event(s) to exchange ' . $definition->{backend_input}->{exchange} . '.'
             ]
         );
 
         for (@{$serialized_events}) {
             $channels[0]->publish(
-                exchange => $publisher_definition->{backend_input}->{exchange},
-                routing_key => $publisher_definition->{backend} . '.' . $publisher_definition->{name},
+                exchange => $definition->{backend_input}->{exchange},
+                routing_key => $definition->{backend} . '.' . $definition->{name},
                 header => {
-                    delivery_mode => $publisher_definition->{backend_input}->{delivery_mode}
+                    delivery_mode => $definition->{backend_input}->{delivery_mode}
                 },
                 body => $_,
                 # on_ack => sub {
@@ -58,18 +58,18 @@ sub publish {
 }
 
 sub connect {
-    my ($done, $publisher_definition) = @_;
+    my ($done, $meta, $definition) = @_;
 
     $net = AnyEvent::RabbitMQ->new()->load_xml_spec()->connect(
-        host => $publisher_definition->{backend_input}->{host},
-        port => $publisher_definition->{backend_input}->{port},
-        user => $publisher_definition->{backend_input}->{user},
-        pass => $publisher_definition->{backend_input}->{password},
-        vhost => $publisher_definition->{backend_input}->{vhost},
-        timeout => $publisher_definition->{backend_input}->{timeout},
-        tls => $publisher_definition->{backend_input}->{tls},
+        host => $definition->{backend_input}->{host},
+        port => $definition->{backend_input}->{port},
+        user => $definition->{backend_input}->{user},
+        pass => $definition->{backend_input}->{password},
+        vhost => $definition->{backend_input}->{vhost},
+        timeout => $definition->{backend_input}->{timeout},
+        tls => $definition->{backend_input}->{tls},
         tune => {
-            heartbeat => $publisher_definition->{backend_input}->{heartbeat}
+            heartbeat => $definition->{backend_input}->{heartbeat}
         },
         on_success => sub {
             Navel::Broker::Client::Fork::Worker::log(
