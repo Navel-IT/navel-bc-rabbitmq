@@ -156,15 +156,15 @@ sub is_connected {
 }
 
 sub is_connecting {
-    shift->(is_net_ready() && $net == AnyEvent::RabbitMQ::_ST_OPENING); # Warning, may change
+    shift->(is_net_ready() && $net->{_state} == AnyEvent::RabbitMQ::_ST_OPENING); # Warning, may change
 }
 
 sub is_disconnected {
-    shift->(is_net_ready() && $net == AnyEvent::RabbitMQ::_ST_CLOSED); # Warning, may change
+    shift->(is_net_ready() && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSED); # Warning, may change
 }
 
 sub is_disconnecting {
-    shift->(is_net_ready() && $net == AnyEvent::RabbitMQ::_ST_CLOSING); # Warning, may change
+    shift->(is_net_ready() && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSING); # Warning, may change
 }
 
 sub is_net_ready {
