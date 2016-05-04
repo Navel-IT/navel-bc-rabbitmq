@@ -42,3 +42,13 @@ delivery_mode: 2
 - Consumer
 
 Not yet available.
+
+Copyright
+---------
+
+Copyright (C) 2015 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
+
+License
+-------
+
+navel-bcb-rabbitmq is licensed under the Apache License, Version 2.0
