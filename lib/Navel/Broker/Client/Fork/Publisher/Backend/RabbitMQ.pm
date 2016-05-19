@@ -21,30 +21,49 @@ my $net;
 #-> methods
 
 sub publish {
-    my ($done, $meta, $definition, $serialized_events) = @_;
+    my ($done, $meta, $definition, $events) = @_;
 
     if (my @channels = values %{$net->channels()}) {
+        local $@;
+
+        my $serialization_errors = 0;
+
         Navel::Broker::Client::Fork::Worker::log(
             [
                 'info',
-                'sending ' . @{$serialized_events} . ' event(s) to exchange ' . $definition->{backend_input}->{exchange} . '.'
+                'sending ' . @{$events} . ' event(s) to exchange ' . $definition->{backend_input}->{exchange} . '.'
             ]
         );
 
-        for (@{$serialized_events}) {
-            $channels[0]->publish(
-                exchange => $definition->{backend_input}->{exchange},
-                routing_key => $definition->{backend} . '.' . $definition->{name},
-                header => {
-                    delivery_mode => $definition->{backend_input}->{delivery_mode}
-                },
-                body => $_,
-                # on_ack => sub {
-                # },
-                # on_nack => sub {
-                # }
-            );
+        for (@{$events}) {
+            my $serialized_event = eval {
+                $_->serialize();
+            };
+
+            unless ($@) {
+                $channels[0]->publish(
+                    exchange => $definition->{backend_input}->{exchange},
+                    routing_key => $definition->{backend} . '.' . $_->{collection},
+                    header => {
+                        delivery_mode => $definition->{backend_input}->{delivery_mode}
+                    },
+                    body => $serialized_event,
+                    # on_ack => sub {
+                    # },
+                    # on_nack => sub {
+                    # }
+                );
+            } else {
+                $serialization_errors++;
+            }
         }
+
+        Navel::Broker::Client::Fork::Worker::log(
+            [
+                'err',
+                $serialization_errors . ' serialization error(s).'
+            ]
+        ) if $serialization_errors;
     } else {
         Navel::Broker::Client::Fork::Worker::log(
             [
