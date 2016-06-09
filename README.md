@@ -16,6 +16,13 @@ Status
 [![Build Status](https://travis-ci.org/Navel-IT/navel-bcb-rabbitmq.svg?branch=devel)](https://travis-ci.org/Navel-IT/navel-bcb-rabbitmq?branch=devel)
 [![Coverage Status](https://coveralls.io/repos/github/Navel-IT/navel-bcb-rabbitmq/badge.svg?branch=devel)](https://coveralls.io/github/Navel-IT/navel-bcb-rabbitmq?branch=devel)
 
+Installation
+------------
+
+```bash
+cpanm https://github.com/navel-it/navel-bcb-rabbitmq.git
+```
+
 Configuration
 -------------
 
