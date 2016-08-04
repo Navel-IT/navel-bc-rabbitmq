@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use ExtUtils::MakeMaker 6.64;
+use ExtUtils::MakeMaker;
 
 #-> main
 
@@ -37,6 +37,9 @@ WriteMakefile(
         'Navel::Base' => 0,
         'Navel::Logger' => 0,
         'AnyEvent::RabbitMQ' => 1.19
+    },
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => 6.64
     },
     TEST_REQUIRES => {
         'Test::More' => 0,
