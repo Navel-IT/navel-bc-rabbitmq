@@ -48,16 +48,16 @@ sub publish {
         Navel::Scheduler::Core::Collector::Fork::Worker::log(
             [
                 'info',
-                'sending ' . @events . ' event(s) to exchange ' . $collector->{publisher}->{backend_input}->{exchange} . '.'
+                'sending ' . @events . ' event(s) to exchange ' . $collector->{publisher_backend_input}->{exchange} . '.'
             ]
         );
 
         for (@events) {
             $channels[0]->publish(
-                exchange => $collector->{publisher}->{backend_input}->{exchange},
-                routing_key => $collector->{publisher}->{backend} . '.' . $collector->{collection},
+                exchange => $collector->{publisher_backend_input}->{exchange},
+                routing_key => $collector->{publisher_backend} . '.' . $collector->{collection},
                 header => {
-                    delivery_mode => $collector->{publisher}->{backend_input}->{delivery_mode}
+                    delivery_mode => $collector->{publisher_backend_input}->{delivery_mode}
                 },
                 body => $_
             );
@@ -76,15 +76,15 @@ sub publish {
 
 sub connect {
     $net = AnyEvent::RabbitMQ->new()->load_xml_spec()->connect(
-        host => $collector->{publisher}->{backend_input}->{host},
-        port => $collector->{publisher}->{backend_input}->{port},
-        user => $collector->{publisher}->{backend_input}->{user},
-        pass => $collector->{publisher}->{backend_input}->{password},
-        vhost => $collector->{publisher}->{backend_input}->{vhost},
-        timeout => $collector->{publisher}->{backend_input}->{timeout},
+        host => $collector->{publisher_backend_input}->{host},
+        port => $collector->{publisher_backend_input}->{port},
+        user => $collector->{publisher_backend_input}->{user},
+        pass => $collector->{publisher_backend_input}->{password},
+        vhost => $collector->{publisher_backend_input}->{vhost},
+        timeout => $collector->{publisher_backend_input}->{timeout},
         tls => $collector->{tls},
         tune => {
-            heartbeat => $collector->{publisher}->{backend_input}->{heartbeat}
+            heartbeat => $collector->{publisher_backend_input}->{heartbeat}
         },
         on_success => sub {
             Navel::Scheduler::Core::Collector::Fork::Worker::log(

@@ -30,8 +30,8 @@ Configuration
 
 ```json
 {
-	"backend": "Navel::Broker::Client::Publisher::RabbitMQ",
-	"backend_input": {
+	"publisher_backend": "Navel::Broker::Client::Publisher::RabbitMQ",
+	"publisher_backend_input": {
 		"host": "localhost",
 		"port": 5672,
 		"user": "guest",
@@ -43,7 +43,7 @@ Configuration
 		"exchange": "amq.topic",
 		"delivery_mode": 2
 	},
-    "auto_clean": 0
+    "queue_auto_clean": 0
 }
 ```
 
