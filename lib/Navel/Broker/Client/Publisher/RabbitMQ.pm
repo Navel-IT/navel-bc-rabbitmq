@@ -22,7 +22,7 @@ my ($collector, $net);
 #-> methods
 
 sub init {
-    $collector = Navel::Scheduler::Core::Collector::Fork::Worker::collector();
+    $collector = W::collector();
 }
 
 sub enable {
@@ -43,9 +43,9 @@ sub publish {
     if (my @channels = values %{$net->channels()}) {
         local $@;
 
-        my @events = Navel::Scheduler::Core::Collector::Fork::Worker::queue()->dequeue();
+        my @events = W::queue()->dequeue();
 
-        Navel::Scheduler::Core::Collector::Fork::Worker::log(
+        W::log(
             [
                 'info',
                 'sending ' . @events . ' event(s) to exchange ' . $collector->{publisher_backend_input}->{exchange} . '.'
@@ -63,7 +63,7 @@ sub publish {
             );
         }
     } else {
-        Navel::Scheduler::Core::Collector::Fork::Worker::log(
+        W::log(
             [
                 'err',
                 'publisher has no channel opened.'
@@ -87,7 +87,7 @@ sub connect {
             heartbeat => $collector->{publisher_backend_input}->{heartbeat}
         },
         on_success => sub {
-            Navel::Scheduler::Core::Collector::Fork::Worker::log(
+            W::log(
                 [
                     'notice',
                     'successfully connected.'
@@ -96,7 +96,7 @@ sub connect {
 
             shift->open_channel(
                 on_success => sub {
-                    Navel::Scheduler::Core::Collector::Fork::Worker::log(
+                    W::log(
                         [
                             'notice',
                             'channel opened.'
@@ -104,7 +104,7 @@ sub connect {
                     );
                 },
                 on_failure => sub {
-                    Navel::Scheduler::Core::Collector::Fork::Worker::log(
+                    W::log(
                         [
                             'err',
                             Navel::Logger::Message->stepped_message('channel failure.', \@_)
@@ -114,7 +114,7 @@ sub connect {
                     undef $net;
                 },
                 on_close => sub {
-                    Navel::Scheduler::Core::Collector::Fork::Worker::log(
+                    W::log(
                         [
                             'notice',
                             'channel closed.'
@@ -126,7 +126,7 @@ sub connect {
             );
         },
         on_failure => sub {
-            Navel::Scheduler::Core::Collector::Fork::Worker::log(
+            W::log(
                 [
                     'err',
                     Navel::Logger::Message->stepped_message('failure.', \@_)
@@ -136,7 +136,7 @@ sub connect {
             undef $net;
         },
         on_read_failure => sub {
-            Navel::Scheduler::Core::Collector::Fork::Worker::log(
+            W::log(
                 [
                     'err',
                     Navel::Logger::Message->stepped_message('read failure.', \@_)
@@ -146,7 +146,7 @@ sub connect {
             undef $net;
         },
         on_return => sub {
-            Navel::Scheduler::Core::Collector::Fork::Worker::log(
+            W::log(
                 [
                     'err',
                     'unable to deliver frame.'
@@ -156,7 +156,7 @@ sub connect {
             undef $net;
         },
         on_close => sub {
-            Navel::Scheduler::Core::Collector::Fork::Worker::log(
+            W::log(
                 [
                     'notice',
                     'disconnected.'
