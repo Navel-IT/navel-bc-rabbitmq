@@ -17,12 +17,11 @@ use Navel::Utils 'blessed';
 
 #-> class variables
 
-my ($collector, $net);
+my $net;
 
 #-> methods
 
 sub init {
-    $collector = W::collector();
 }
 
 sub enable {
@@ -40,24 +39,24 @@ sub is_connectable {
 }
 
 sub publish {
-    if (my @channels = values %{$net->channels()}) {
+    if (my @channels = values %{$net->channels}) {
         local $@;
 
-        my @events = W::queue()->dequeue();
+        my @events = W::queue()->dequeue;
 
         W::log(
             [
                 'info',
-                'sending ' . @events . ' event(s) to exchange ' . $collector->{publisher_backend_input}->{exchange} . '.'
+                'sending ' . @events . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{exchange} . '.'
             ]
         );
 
         for (@events) {
             $channels[0]->publish(
-                exchange => $collector->{publisher_backend_input}->{exchange},
-                routing_key => $collector->{publisher_backend} . '.' . $collector->{collection},
+                exchange => W::collector()->{publisher_backend_input}->{exchange},
+                routing_key => W::collector()->{publisher_backend} . '.' . W::collector()->{collection},
                 header => {
-                    delivery_mode => $collector->{publisher_backend_input}->{delivery_mode}
+                    delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
                 },
                 body => $_
             );
@@ -75,16 +74,16 @@ sub publish {
 }
 
 sub connect {
-    $net = AnyEvent::RabbitMQ->new()->load_xml_spec()->connect(
-        host => $collector->{publisher_backend_input}->{host},
-        port => $collector->{publisher_backend_input}->{port},
-        user => $collector->{publisher_backend_input}->{user},
-        pass => $collector->{publisher_backend_input}->{password},
-        vhost => $collector->{publisher_backend_input}->{vhost},
-        timeout => $collector->{publisher_backend_input}->{timeout},
-        tls => $collector->{tls},
+    $net = AnyEvent::RabbitMQ->new->load_xml_spec->connect(
+        host => W::collector()->{publisher_backend_input}->{host},
+        port => W::collector()->{publisher_backend_input}->{port},
+        user => W::collector()->{publisher_backend_input}->{user},
+        pass => W::collector()->{publisher_backend_input}->{password},
+        vhost => W::collector()->{publisher_backend_input}->{vhost},
+        timeout => W::collector()->{publisher_backend_input}->{timeout},
+        tls => W::collector()->{publisher_backend_input}->{tls},
         tune => {
-            heartbeat => $collector->{publisher_backend_input}->{heartbeat}
+            heartbeat => W::collector()->{publisher_backend_input}->{heartbeat}
         },
         on_success => sub {
             W::log(
@@ -170,24 +169,24 @@ sub connect {
     shift->(1);
 }
 
+sub is_net_ready {
+    blessed($net) && $net->isa('AnyEvent::RabbitMQ');
+}
+
 sub is_connected {
-    shift->(1, is_net_ready() && $net->is_open());
+    shift->(1, is_net_ready && $net->is_open);
 }
 
 sub is_connecting {
-    shift->(1, is_net_ready() && $net->{_state} == AnyEvent::RabbitMQ::_ST_OPENING); # Warning, may change
+    shift->(1, is_net_ready && $net->{_state} == AnyEvent::RabbitMQ::_ST_OPENING); # Warning, may change
 }
 
 sub is_disconnected {
-    shift->(1, is_net_ready() && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSED); # Warning, may change
+    shift->(1, is_net_ready && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSED); # Warning, may change
 }
 
 sub is_disconnecting {
-    shift->(1, is_net_ready() && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSING); # Warning, may change
-}
-
-sub is_net_ready {
-    blessed($net) && $net->isa('AnyEvent::RabbitMQ');
+    shift->(1, is_net_ready && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSING); # Warning, may change
 }
 
 # sub AUTOLOAD {}
