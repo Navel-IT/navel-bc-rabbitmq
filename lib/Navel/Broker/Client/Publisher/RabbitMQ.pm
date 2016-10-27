@@ -13,11 +13,16 @@ use AnyEvent::RabbitMQ 1.19;
 
 use Navel::Logger::Message;
 
-use Navel::Utils 'blessed';
+use Navel::Utils qw/
+    blessed
+    encode_sereal_constructor
+/;
 
 #-> class variables
 
 my $net;
+
+my $encode_sereal_constructor = encode_sereal_constructor;
 
 #-> methods
 
@@ -42,25 +47,23 @@ sub publish {
     if (my @channels = values %{$net->channels}) {
         local $@;
 
-        my @events = @{W::queue()->dequeue};
+        my $events = W::queue()->dequeue;
 
         W::log(
             [
                 'info',
-                'sending ' . @events . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{exchange} . '.'
+                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{exchange} . '.'
             ]
         );
 
-        for (@events) {
-            $channels[0]->publish(
-                exchange => W::collector()->{publisher_backend_input}->{exchange},
-                routing_key => W::collector()->{publisher_backend} . '.' . W::collector()->{collection},
-                header => {
-                    delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
-                },
-                body => $_
-            );
-        }
+        $channels[0]->publish(
+            exchange => W::collector()->{publisher_backend_input}->{exchange},
+            routing_key => W::collector()->{publisher_backend} . '.' . W::collector()->{collection},
+            header => {
+                delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
+            },
+            body => $encode_sereal_constructor->encode($events)
+        );
     } else {
         W::log(
             [
