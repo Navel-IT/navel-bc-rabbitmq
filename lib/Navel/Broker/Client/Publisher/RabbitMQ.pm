@@ -42,7 +42,7 @@ sub publish {
     if (my @channels = values %{$net->channels}) {
         local $@;
 
-        my @events = W::queue()->dequeue;
+        my @events = @{W::queue()->dequeue};
 
         W::log(
             [
