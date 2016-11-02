@@ -58,7 +58,7 @@ sub publish {
 
         $channels[0]->publish(
             exchange => W::collector()->{publisher_backend_input}->{exchange},
-            routing_key => W::collector()->{publisher_backend} . '.' . W::collector()->{collection},
+            routing_key => W::collector()->{publisher_backend} . '.' . (W::collector()->{publisher_backend}->EVENT_CLASS // ''),
             header => {
                 delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
             },
