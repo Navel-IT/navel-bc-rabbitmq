@@ -52,7 +52,7 @@ sub publish {
         W::log(
             [
                 'info',
-                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{backend_input}->{exchange} . '.'
+                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{exchange} . '.'
             ]
         );
 
