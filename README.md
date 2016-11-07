@@ -30,7 +30,7 @@ Configuration
 
 ```json
 {
-	"publisher_backend": "Navel::Broker::Client::Publisher::RabbitMQ",
+	"publisher_backend": "Navel::Broker::Client::RabbitMQ::Publisher",
 	"publisher_backend_input": {
 		"host": "localhost",
 		"port": 5672,
@@ -43,13 +43,30 @@ Configuration
 		"exchange": "amq.topic",
 		"delivery_mode": 2
 	},
-    "queue_auto_clean": 0
+    "queue_size": 0
 }
 ```
 
 - Consumer
 
-Not yet available.
+```json
+{
+	"publisher_backend": "Navel::Broker::Client::RabbitMQ::Consumer",
+	"publisher_backend_input": {
+		"host": "localhost",
+		"port": 5672,
+		"user": "guest",
+		"password": "guest",
+		"timeout": 0,
+		"vhost": "/",
+		"tls": 0,
+		"heartbeat": 30,
+		"queue": "navel-events",
+		"delivery_mode": 2
+	},
+    "queue_size": 0
+}
+```
 
 Copyright
 ---------
