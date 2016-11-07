@@ -143,10 +143,6 @@ sub is_disconnecting {
     is_net_ready($net) && $net->{_state} == AnyEvent::RabbitMQ::_ST_CLOSING; # Warning, may change
 }
 
-# sub AUTOLOAD {}
-
-# sub DESTROY {}
-
 1;
 
 #-> END

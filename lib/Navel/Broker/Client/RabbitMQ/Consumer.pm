@@ -140,10 +140,6 @@ sub is_disconnecting {
     shift->(1, Navel::Utils::Broker::Client::RabbitMQ::is_disconnecting($net));
 }
 
-# sub AUTOLOAD {}
-
-# sub DESTROY {}
-
 1;
 
 #-> END
