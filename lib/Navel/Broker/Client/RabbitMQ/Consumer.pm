@@ -13,13 +13,13 @@ use AnyEvent::RabbitMQ 1.19;
 
 use Navel::Utils::Broker::Client::RabbitMQ;
 use Navel::Logger::Message;
-use Navel::Utils 'encode_sereal_constructor';
+use Navel::Utils 'decode_sereal_constructor';
 
 #-> class variables
 
 my $net;
 
-my $encode_sereal_constructor = encode_sereal_constructor;
+my $decode_sereal_constructor = decode_sereal_constructor;
 
 #-> functions
 
@@ -42,19 +42,19 @@ sub is_connectable {
 
 sub connect {
     $net = Navel::Utils::Broker::Client::RabbitMQ::connect(
-        host => W::collector()->{consumer_backend_input}->{host},
-        port => W::collector()->{consumer_backend_input}->{port},
-        user => W::collector()->{consumer_backend_input}->{user},
-        pass => W::collector()->{consumer_backend_input}->{password},
-        vhost => W::collector()->{consumer_backend_input}->{vhost},
-        timeout => W::collector()->{consumer_backend_input}->{timeout},
-        tls => W::collector()->{consumer_backend_input}->{tls},
+        host => W::storekeeper()->{consumer_backend_input}->{host},
+        port => W::storekeeper()->{consumer_backend_input}->{port},
+        user => W::storekeeper()->{consumer_backend_input}->{user},
+        pass => W::storekeeper()->{consumer_backend_input}->{password},
+        vhost => W::storekeeper()->{consumer_backend_input}->{vhost},
+        timeout => W::storekeeper()->{consumer_backend_input}->{timeout},
+        tls => W::storekeeper()->{consumer_backend_input}->{tls},
         tune => {
-            heartbeat => W::collector()->{consumer_backend_input}->{heartbeat}
+            heartbeat => W::storekeeper()->{consumer_backend_input}->{heartbeat}
         },
         on_channel_opened => sub {
             shift->consume(
-                queue => W::collector()->{consumer_backend_input}->{queue},
+                queue => W::storekeeper()->{consumer_backend_input}->{queue},
                 on_success => sub {
                     W::log(
                         [
@@ -87,14 +87,14 @@ sub connect {
                     local $@;
 
                     my @events = eval {
-                        @{$encode_sereal_constructor->decode(shift)};
+                        @{$decode_sereal_constructor->decode(shift->{body}->{payload})};
                     };
 
                     unless ($@) {
                         W::log(
                             [
                                 'info',
-                                'received ' . @events . ' event(s) from queue ' . W::collector()->{consumer_backend_input}->{queue} . '.'
+                                'received ' . @events . ' event(s) from queue ' . W::storekeeper()->{consumer_backend_input}->{queue} . '.'
                             ]
                         );
 
