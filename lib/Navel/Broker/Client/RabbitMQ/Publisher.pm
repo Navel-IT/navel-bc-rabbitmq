@@ -82,7 +82,7 @@ sub publish {
 
                 my $size_left = W::queue()->size_left;
 
-                W::queue()->enqueue($size_left < 0 ? @{$events} : @{$events}[-$size_left..-1]);
+                W::queue()->enqueue($size_left < 0 ? @{$events} : splice @{$events}, - ($size_left > @{$events} ? @{$events} : $size_left));
 
                 $done->(1);
             }
