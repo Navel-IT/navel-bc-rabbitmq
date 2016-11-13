@@ -61,8 +61,7 @@ Configuration
 		"vhost": "/",
 		"tls": 0,
 		"heartbeat": 30,
-		"queue": "navel-events",
-		"delivery_mode": 2
+		"queue": "navel-events"
 	},
     "queue_size": 0
 }
