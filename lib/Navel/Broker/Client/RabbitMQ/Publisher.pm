@@ -53,15 +53,13 @@ sub publish {
             ]
         );
 
-        my $encoded_events = $encode_sereal_constructor->encode($events);
-
         $channels[0]->publish(
             exchange => W::collector()->{publisher_backend_input}->{exchange},
             routing_key => W::collector()->{publisher_backend} . '.' . (W::collector()->{backend}->EVENT_CLASS // ''),
             header => {
                 delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
             },
-            body => $encoded_events,
+            body => $encode_sereal_constructor->encode($events),
             on_ack => sub {
                 W::log(
                     [
