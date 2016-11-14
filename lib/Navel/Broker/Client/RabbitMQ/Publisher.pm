@@ -49,22 +49,31 @@ sub publish {
         W::log(
             [
                 'info',
-                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{exchange} . '.'
+                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{fanout_exchange} . '.'
             ]
         );
 
         $channels[0]->publish(
-            exchange => W::collector()->{publisher_backend_input}->{exchange},
-            routing_key => W::collector()->{publisher_backend} . '.' . (W::collector()->{backend}->EVENT_CLASS // ''),
+            exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
             header => {
                 delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
             },
             body => $encode_sereal_constructor->encode($events),
+            on_inactive => sub {
+                W::log(
+                    [
+                        'warning',
+                        'idle (inactive) channel.'
+                    ]
+                );
+
+                $done->(1);
+            },
             on_ack => sub {
                 W::log(
                     [
                         'info',
-                        'publicaton successfully done.'
+                        'publicaton done.'
                     ]
                 );
 
@@ -92,6 +101,8 @@ sub publish {
                 'publisher has no channel opened.'
             ]
         );
+
+        $done->(1);
     }
 }
 
@@ -104,11 +115,29 @@ sub connect {
         vhost => W::collector()->{publisher_backend_input}->{vhost},
         timeout => W::collector()->{publisher_backend_input}->{timeout},
         tls => W::collector()->{publisher_backend_input}->{tls},
-        tune => {
-            heartbeat => W::collector()->{publisher_backend_input}->{heartbeat}
-        },
         on_channel_opened => sub {
-            shift->confirm;
+            shift->confirm->declare_exchange(
+                exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
+                type => 'fanout',
+                on_success => sub {
+                    W::log(
+                        [
+                            'notice',
+                            'exchange declared.'
+                        ]
+                    );
+                },
+                on_failure => sub {
+                    W::log(
+                        [
+                            'err',
+                            Navel::Logger::Message->stepped_message('failure.', \@_)
+                        ]
+                    );
+
+                    undef $net;
+                }
+            );
         },
         on_error => sub {
             undef $net;

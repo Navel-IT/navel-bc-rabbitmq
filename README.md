@@ -30,19 +30,17 @@ Configuration
 
 ```json
 {
-	"publisher_backend": "Navel::Broker::Client::RabbitMQ::Publisher",
-	"publisher_backend_input": {
-		"host": "localhost",
-		"port": 5672,
-		"user": "guest",
-		"password": "guest",
-		"timeout": 0,
-		"vhost": "/",
-		"tls": 0,
-		"heartbeat": 30,
-		"exchange": "amq.topic",
-		"delivery_mode": 2
-	},
+    "publisher_backend": "Navel::Broker::Client::RabbitMQ::Publisher",
+    "publisher_backend_input": {
+        "host": "localhost",
+        "port": 5672,
+        "user": "guest",
+        "password": "guest",
+        "timeout": 0,
+        "vhost": "/",
+        "tls": 0,
+        "fanout_exchange": "navel-scheduler-1"
+    },
     "queue_size": 0
 }
 ```
@@ -51,18 +49,18 @@ Configuration
 
 ```json
 {
-	"publisher_backend": "Navel::Broker::Client::RabbitMQ::Consumer",
-	"publisher_backend_input": {
-		"host": "localhost",
-		"port": 5672,
-		"user": "guest",
-		"password": "guest",
-		"timeout": 0,
-		"vhost": "/",
-		"tls": 0,
-		"heartbeat": 30,
-		"queue": "navel-events"
-	},
+    "publisher_backend": "Navel::Broker::Client::RabbitMQ::Consumer",
+    "publisher_backend_input": {
+        "host": "localhost",
+        "port": 5672,
+        "user": "guest",
+        "password": "guest",
+        "timeout": 0,
+        "vhost": "/",
+        "tls": 0,
+        "queue": "navel-dispatcher-1",
+        "fanout_exchange": "navel-scheduler-1"
+    },
     "queue_size": 0
 }
 ```

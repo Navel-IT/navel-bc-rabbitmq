@@ -27,13 +27,27 @@ sub connect {
         on_error
     /};
 
+    my $on_failure = sub {
+        W::log(
+            [
+                'err',
+                Navel::Logger::Message->stepped_message('failure.', \@_)
+            ]
+        );
+
+        $on_error->() if ref $on_error eq 'CODE';
+    };
+
     AnyEvent::RabbitMQ->new->load_xml_spec->connect(
         %options,
+        tune => {
+            heartbeat => 5
+        },
         on_success => sub {
             W::log(
                 [
                     'notice',
-                    'successfully connected.'
+                    'connected.'
                 ]
             );
 
@@ -48,16 +62,7 @@ sub connect {
 
                     $on_channel_opened->(@_) if ref $on_channel_opened eq 'CODE';
                 },
-                on_failure => sub {
-                    W::log(
-                        [
-                            'err',
-                            Navel::Logger::Message->stepped_message('channel failure.', \@_)
-                        ]
-                    );
-
-                    $on_error->() if ref $on_error eq 'CODE';
-                },
+                on_failure => $on_failure,
                 on_close => sub {
                     W::log(
                         [
@@ -70,36 +75,9 @@ sub connect {
                 }
             );
         },
-        on_failure => sub {
-            W::log(
-                [
-                    'err',
-                    Navel::Logger::Message->stepped_message('failure.', \@_)
-                ]
-            );
-
-            $on_error->() if ref $on_error eq 'CODE';
-        },
-        on_read_failure => sub {
-            W::log(
-                [
-                    'err',
-                    Navel::Logger::Message->stepped_message('read failure.', \@_)
-                ]
-            );
-
-            $on_error->() if ref $on_error eq 'CODE';
-        },
-        on_return => sub {
-            W::log(
-                [
-                    'err',
-                    'unable to deliver frame.'
-                ]
-            );
-
-            $on_error->() if ref $on_error eq 'CODE';
-        },
+        on_failure => $on_failure,
+        on_read_failure => $on_failure,
+        on_return => $on_failure,
         on_close => sub {
             W::log(
                 [

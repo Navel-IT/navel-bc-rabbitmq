@@ -23,6 +23,17 @@ my $decode_sereal_constructor = decode_sereal_constructor;
 
 #-> functions
 
+my $connect_on_failure = sub {
+    W::log(
+        [
+            'err',
+            Navel::Logger::Message->stepped_message('failure.', \@_)
+        ]
+    );
+
+    undef $net;
+};
+
 sub init {
 }
 
@@ -49,69 +60,91 @@ sub connect {
         vhost => W::storekeeper()->{consumer_backend_input}->{vhost},
         timeout => W::storekeeper()->{consumer_backend_input}->{timeout},
         tls => W::storekeeper()->{consumer_backend_input}->{tls},
-        tune => {
-            heartbeat => W::storekeeper()->{consumer_backend_input}->{heartbeat}
-        },
         on_channel_opened => sub {
-            shift->consume(
+            my $channel = shift;
+
+            $channel->declare_queue(
                 queue => W::storekeeper()->{consumer_backend_input}->{queue},
                 on_success => sub {
                     W::log(
                         [
                             'notice',
-                            'subscribed to the queue.'
-                        ]
-                    );
-                },
-                on_failure => sub {
-                    W::log(
-                        [
-                            'err',
-                            Navel::Logger::Message->stepped_message('failure.', \@_)
+                            'queue declared.'
                         ]
                     );
 
-                    undef $net;
-                },
-                on_cancel => sub {
-                    W::log(
-                        [
-                            'err',
-                            Navel::Logger::Message->stepped_message('cancelled.', \@_)
-                        ]
+                    $channel->declare_exchange(
+                        exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
+                        type => 'fanout',
+                        on_success => sub {
+                            W::log(
+                                [
+                                    'notice',
+                                    'exchange declared.'
+                                ]
+                            );
+
+                            $channel->bind_queue(
+                                queue => W::storekeeper()->{consumer_backend_input}->{queue},
+                                exchange => W::storekeeper()->{consumer_backend_input}->{fanout_exchange},
+                                on_success => sub {
+                                    W::log(
+                                        [
+                                            'notice',
+                                            'queue binded.'
+                                        ]
+                                    );
+
+                                    $channel->consume(
+                                        queue => W::storekeeper()->{consumer_backend_input}->{queue},
+                                        on_success => sub {
+                                            W::log(
+                                                [
+                                                    'notice',
+                                                    'subscribed to the queue.'
+                                                ]
+                                            );
+                                        },
+                                        on_failure => $connect_on_failure,
+                                        on_cancel => $connect_on_failure,
+                                        on_consume => sub {
+                                            local $@;
+
+                                            my @events = eval {
+                                                @{$decode_sereal_constructor->decode(shift->{body}->{payload})};
+                                            };
+
+                                            unless ($@) {
+                                                W::log(
+                                                    [
+                                                        'info',
+                                                        'received ' . @events . ' event(s) from queue ' . W::storekeeper()->{consumer_backend_input}->{queue} . '.'
+                                                    ]
+                                                );
+
+                                                W::queue()->enqueue(@events);
+                                            } else {
+                                                W::log(
+                                                    [
+                                                        'err',
+                                                        Navel::Logger::Message->stepped_message('an error occurred during the decoding.',
+                                                            [
+                                                                $@
+                                                            ]
+                                                        )
+                                                    ]
+                                                );
+                                            }
+                                        }
+                                    );
+                                },
+                                on_failure => $connect_on_failure
+                            );
+                        },
+                        on_failure => $connect_on_failure
                     );
-
-                    undef $net;
                 },
-                on_consume => sub {
-                    local $@;
-
-                    my @events = eval {
-                        @{$decode_sereal_constructor->decode(shift->{body}->{payload})};
-                    };
-
-                    unless ($@) {
-                        W::log(
-                            [
-                                'info',
-                                'received ' . @events . ' event(s) from queue ' . W::storekeeper()->{consumer_backend_input}->{queue} . '.'
-                            ]
-                        );
-
-                        W::queue()->enqueue(@events);
-                    } else {
-                        W::log(
-                            [
-                                'err',
-                                Navel::Logger::Message->stepped_message('an error occurred during the decoding.',
-                                    [
-                                        $@
-                                    ]
-                                )
-                            ]
-                        );
-                    }
-                }
+                on_failure => $connect_on_failure
             );
         },
         on_error => sub {
