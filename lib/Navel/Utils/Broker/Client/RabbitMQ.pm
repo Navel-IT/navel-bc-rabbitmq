@@ -40,9 +40,6 @@ sub connect {
 
     AnyEvent::RabbitMQ->new->load_xml_spec->connect(
         %options,
-        tune => {
-            heartbeat => 5
-        },
         on_success => sub {
             W::log(
                 [
