@@ -74,7 +74,7 @@ sub connect {
                     );
 
                     $channel->declare_exchange(
-                        exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
+                        exchange => W::storekeeper()->{consumer_backend_input}->{fanout_exchange},
                         type => 'fanout',
                         on_success => sub {
                             W::log(
