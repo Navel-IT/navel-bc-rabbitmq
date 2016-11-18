@@ -49,8 +49,8 @@ Configuration
 
 ```json
 {
-    "publisher_backend": "Navel::Broker::Client::RabbitMQ::Consumer",
-    "publisher_backend_input": {
+    "consumer_backend": "Navel::Broker::Client::RabbitMQ::Consumer",
+    "consumer_backend_input": {
         "host": "localhost",
         "port": 5672,
         "user": "guest",
