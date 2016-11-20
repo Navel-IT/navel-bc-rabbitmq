@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Broker::Client::RabbitMQ::Publisher 0.1;
+package Navel::Broker::Client::RabbitMQ::Dispatcher::Publisher 0.1;
 
 use Navel::Base;
 
@@ -44,19 +44,19 @@ sub publish {
     my $done = shift;
 
     if (my @channels = values %{$net->channels}) {
-        my $events = W::queue()->dequeue;
+        my $events = W::publisher_queue()->dequeue;
 
         W::log(
             [
                 'info',
-                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{fanout_exchange} . '.'
+                'sending ' . @{$events} . ' event(s) to exchange ' . W::storekeeper()->{publisher_backend_input}->{fanout_exchange} . '.'
             ]
         );
 
         $channels[0]->publish(
-            exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
+            exchange => W::storekeeper()->{publisher_backend_input}->{fanout_exchange},
             header => {
-                delivery_mode => W::collector()->{publisher_backend_input}->{delivery_mode}
+                delivery_mode => 2
             },
             body => $encode_sereal_constructor->encode($events),
             on_inactive => sub {
@@ -87,9 +87,9 @@ sub publish {
                     ]
                 );
 
-                my $size_left = W::queue()->size_left;
+                my $size_left = W::publisher_queue()->size_left;
 
-                W::queue()->enqueue($size_left < 0 ? @{$events} : splice @{$events}, - ($size_left > @{$events} ? @{$events} : $size_left));
+                W::publisher_queue()->enqueue($size_left < 0 ? @{$events} : splice @{$events}, - ($size_left > @{$events} ? @{$events} : $size_left));
 
                 $done->(1);
             }
@@ -108,16 +108,16 @@ sub publish {
 
 sub connect {
     $net = Navel::Utils::Broker::Client::RabbitMQ::connect(
-        host => W::collector()->{publisher_backend_input}->{host},
-        port => W::collector()->{publisher_backend_input}->{port},
-        user => W::collector()->{publisher_backend_input}->{user},
-        pass => W::collector()->{publisher_backend_input}->{password},
-        vhost => W::collector()->{publisher_backend_input}->{vhost},
-        timeout => W::collector()->{publisher_backend_input}->{timeout},
-        tls => W::collector()->{publisher_backend_input}->{tls},
+        host => W::storekeeper()->{publisher_backend_input}->{host},
+        port => W::storekeeper()->{publisher_backend_input}->{port},
+        user => W::storekeeper()->{publisher_backend_input}->{user},
+        pass => W::storekeeper()->{publisher_backend_input}->{password},
+        vhost => W::storekeeper()->{publisher_backend_input}->{vhost},
+        timeout => W::storekeeper()->{publisher_backend_input}->{timeout},
+        tls => W::storekeeper()->{publisher_backend_input}->{tls},
         on_channel_opened => sub {
             shift->confirm->declare_exchange(
-                exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
+                exchange => W::storekeeper()->{publisher_backend_input}->{fanout_exchange},
                 type => 'fanout',
                 on_success => sub {
                     W::log(
@@ -177,7 +177,7 @@ __END__
 
 =head1 NAME
 
-Navel::Broker::Client::RabbitMQ::Publisher
+Navel::Broker::Client::RabbitMQ::Dispatcher::Publisher
 
 =head1 COPYRIGHT
 

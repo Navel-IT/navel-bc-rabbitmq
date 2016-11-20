@@ -26,12 +26,12 @@ cpanm https://github.com/navel-it/navel-bc-rabbitmq.git
 Configuration
 -------------
 
-- Publisher
+- Publisher (navel-scheduler)
 
 ```json
 {
-    "publisher_backend": "Navel::Broker::Client::RabbitMQ::Publisher",
-    "publisher_backend_input": {
+    "publisher_backend": "Navel::Broker::Client::RabbitMQ::Scheduler::Publisher",
+    "backend_input": {
         "host": "localhost",
         "port": 5672,
         "user": "guest",
@@ -45,11 +45,11 @@ Configuration
 }
 ```
 
-- Consumer
+- Consumer (navel-dispatcher)
 
 ```json
 {
-    "consumer_backend": "Navel::Broker::Client::RabbitMQ::Consumer",
+    "consumer_backend": "Navel::Broker::Client::RabbitMQ::Dispatcher::Consumer",
     "consumer_backend_input": {
         "host": "localhost",
         "port": 5672,
@@ -61,7 +61,26 @@ Configuration
         "queue": "navel-dispatcher-1",
         "fanout_exchange": "navel-scheduler-1"
     },
-    "queue_size": 0
+    "consumer_queue_size": 0
+}
+```
+
+- Publisher (navel-dispatcher)
+
+```json
+{
+    "publisher_backend": "Navel::Broker::Client::RabbitMQ::Dispatcher::Publisher",
+    "backend_input": {
+        "host": "localhost",
+        "port": 5672,
+        "user": "guest",
+        "password": "guest",
+        "timeout": 0,
+        "vhost": "/",
+        "tls": 0,
+        "fanout_exchange": "navel-dispatcher-1"
+    },
+    "publisher_queue_size": 0
 }
 ```
 

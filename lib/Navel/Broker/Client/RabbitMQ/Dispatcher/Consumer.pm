@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Broker::Client::RabbitMQ::Consumer 0.1;
+package Navel::Broker::Client::RabbitMQ::Dispatcher::Consumer 0.1;
 
 use Navel::Base;
 
@@ -122,7 +122,7 @@ sub connect {
                                                     ]
                                                 );
 
-                                                W::queue()->enqueue(@events);
+                                                W::consumer_queue()->enqueue(@events);
                                             } else {
                                                 W::log(
                                                     [
@@ -185,7 +185,7 @@ __END__
 
 =head1 NAME
 
-Navel::Broker::Client::RabbitMQ::Consumer
+Navel::Broker::Client::RabbitMQ::Dispatcher::Consumer
 
 =head1 COPYRIGHT
 

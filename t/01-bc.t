@@ -8,11 +8,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 BEGIN {
-    use_ok('Navel::Broker::Client::RabbitMQ::Publisher');
-    use_ok('Navel::Broker::Client::RabbitMQ::Consumer');
+    use_ok('Navel::Broker::Client::RabbitMQ::Scheduler::Publisher');
+    use_ok('Navel::Broker::Client::RabbitMQ::Dispatcher::Consumer');
+    use_ok('Navel::Broker::Client::RabbitMQ::Dispatcher::Publisher');
 }
 
 #-> main
