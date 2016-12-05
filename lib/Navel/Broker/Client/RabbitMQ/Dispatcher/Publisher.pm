@@ -44,12 +44,12 @@ sub publish {
     my $done = shift;
 
     if (my @channels = values %{$net->channels}) {
-        my $events = W::publisher_queue()->dequeue;
+        my $notifications = W::publisher_queue()->dequeue;
 
         W::log(
             [
                 'info',
-                'sending ' . @{$events} . ' event(s) to exchange ' . W::storekeeper()->{publisher_backend_input}->{fanout_exchange} . '.'
+                'sending ' . @{$notifications} . ' notification(s) to exchange ' . W::storekeeper()->{publisher_backend_input}->{fanout_exchange} . '.'
             ]
         );
 
@@ -58,7 +58,7 @@ sub publish {
             header => {
                 delivery_mode => 2
             },
-            body => $encode_sereal_constructor->encode($events),
+            body => $encode_sereal_constructor->encode($notifications),
             on_inactive => sub {
                 W::log(
                     [
@@ -89,7 +89,7 @@ sub publish {
 
                 my $size_left = W::publisher_queue()->size_left;
 
-                W::publisher_queue()->enqueue($size_left < 0 ? @{$events} : splice @{$events}, - ($size_left > @{$events} ? @{$events} : $size_left));
+                W::publisher_queue()->enqueue($size_left < 0 ? @{$notifications} : splice @{$notifications}, - ($size_left > @{$notifications} ? @{$notifications} : $size_left));
 
                 $done->(1);
             }
