@@ -46,54 +46,63 @@ sub publish {
     if (my @channels = values %{$net->channels}) {
         my $notifications = W::publisher_queue()->dequeue;
 
-        W::log(
-            [
-                'info',
-                'sending ' . @{$notifications} . ' notification(s) to exchange ' . W::storekeeper()->{publisher_backend_input}->{fanout_exchange} . '.'
-            ]
-        );
+        if (@{$notifications}) {
+            W::log(
+                [
+                    'info',
+                    'sending ' . @{$notifications} . ' notification(s) to exchange ' . W::storekeeper()->{publisher_backend_input}->{fanout_exchange} . '.'
+                ]
+            );
 
-        $channels[0]->publish(
-            exchange => W::storekeeper()->{publisher_backend_input}->{fanout_exchange},
-            header => {
-                delivery_mode => 2
-            },
-            body => $encode_sereal_constructor->encode($notifications),
-            on_inactive => sub {
-                W::log(
-                    [
-                        'warning',
-                        'idle (inactive) channel.'
-                    ]
-                );
+            $channels[0]->publish(
+                exchange => W::storekeeper()->{publisher_backend_input}->{fanout_exchange},
+                header => {
+                    delivery_mode => 2
+                },
+                body => $encode_sereal_constructor->encode($notifications),
+                on_inactive => sub {
+                    W::log(
+                        [
+                            'warning',
+                            'idle (inactive) channel.'
+                        ]
+                    );
 
-                $done->(1);
-            },
-            on_ack => sub {
-                W::log(
-                    [
-                        'info',
-                        'publicaton done.'
-                    ]
-                );
+                    $done->(1);
+                },
+                on_ack => sub {
+                    W::log(
+                        [
+                            'info',
+                            'publicaton done.'
+                        ]
+                    );
 
-                $done->(1);
-            },
-            on_nack => sub {
-                W::log(
-                    [
-                        'warning',
-                        'an error occurred during the publicaton.'
-                    ]
-                );
+                    $done->(1);
+                },
+                on_nack => sub {
+                    W::log(
+                        [
+                            'warning',
+                            'an error occurred during the publicaton.'
+                        ]
+                    );
 
-                my $size_left = W::publisher_queue()->size_left;
+                    my $size_left = W::publisher_queue()->size_left;
 
-                W::publisher_queue()->enqueue($size_left < 0 ? @{$notifications} : splice @{$notifications}, - ($size_left > @{$notifications} ? @{$notifications} : $size_left));
+                    W::publisher_queue()->enqueue($size_left < 0 ? @{$notifications} : splice @{$notifications}, - ($size_left > @{$notifications} ? @{$notifications} : $size_left));
 
-                $done->(1);
-            }
-        );
+                    $done->(1);
+                }
+            );
+        } else {
+            W::log(
+                [
+                    'debug',
+                    'no notification to send.'
+                ]
+            );
+        }
     } else {
         W::log(
             [

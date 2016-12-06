@@ -46,54 +46,63 @@ sub publish {
     if (my @channels = values %{$net->channels}) {
         my $events = W::queue()->dequeue;
 
-        W::log(
-            [
-                'info',
-                'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{fanout_exchange} . '.'
-            ]
-        );
+        if (@{$events}) {
+            W::log(
+                [
+                    'info',
+                    'sending ' . @{$events} . ' event(s) to exchange ' . W::collector()->{publisher_backend_input}->{fanout_exchange} . '.'
+                ]
+            );
 
-        $channels[0]->publish(
-            exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
-            header => {
-                delivery_mode => 2
-            },
-            body => $encode_sereal_constructor->encode($events),
-            on_inactive => sub {
-                W::log(
-                    [
-                        'warning',
-                        'idle (inactive) channel.'
-                    ]
-                );
+            $channels[0]->publish(
+                exchange => W::collector()->{publisher_backend_input}->{fanout_exchange},
+                header => {
+                    delivery_mode => 2
+                },
+                body => $encode_sereal_constructor->encode($events),
+                on_inactive => sub {
+                    W::log(
+                        [
+                            'warning',
+                            'idle (inactive) channel.'
+                        ]
+                    );
 
-                $done->(1);
-            },
-            on_ack => sub {
-                W::log(
-                    [
-                        'info',
-                        'publicaton done.'
-                    ]
-                );
+                    $done->(1);
+                },
+                on_ack => sub {
+                    W::log(
+                        [
+                            'info',
+                            'publicaton done.'
+                        ]
+                    );
 
-                $done->(1);
-            },
-            on_nack => sub {
-                W::log(
-                    [
-                        'warning',
-                        'an error occurred during the publicaton.'
-                    ]
-                );
+                    $done->(1);
+                },
+                on_nack => sub {
+                    W::log(
+                        [
+                            'warning',
+                            'an error occurred during the publicaton.'
+                        ]
+                    );
 
-                my $size_left = W::queue()->size_left;
+                    my $size_left = W::queue()->size_left;
 
-                W::queue()->enqueue($size_left < 0 ? @{$events} : splice @{$events}, - ($size_left > @{$events} ? @{$events} : $size_left));
+                    W::queue()->enqueue($size_left < 0 ? @{$events} : splice @{$events}, - ($size_left > @{$events} ? @{$events} : $size_left));
 
-                $done->(1);
-            }
-        );
+                    $done->(1);
+                }
+            );
+        } else {
+            W::log(
+                [
+                    'debug',
+                    'no event to send.'
+                ]
+            );
+        }
     } else {
         W::log(
             [
