@@ -102,6 +102,8 @@ sub publish {
                     'no notification to send.'
                 ]
             );
+
+            $done->(1);
         }
     } else {
         W::log(

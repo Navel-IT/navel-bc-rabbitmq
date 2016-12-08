@@ -102,6 +102,8 @@ sub publish {
                     'no event to send.'
                 ]
             );
+
+            $done->(1);
         }
     } else {
         W::log(
