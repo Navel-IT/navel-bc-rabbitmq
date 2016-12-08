@@ -115,14 +115,16 @@ sub connect {
                                             };
 
                                             unless ($@) {
-                                                W::log(
-                                                    [
-                                                        'info',
-                                                        'received ' . @events . ' event(s) from queue ' . W::storekeeper()->{consumer_backend_input}->{queue} . '.'
-                                                    ]
-                                                );
+                                                if (@events) {
+                                                    W::log(
+                                                        [
+                                                            'info',
+                                                            'received ' . @events . ' event(s) from queue ' . W::storekeeper()->{consumer_backend_input}->{queue} . '.'
+                                                        ]
+                                                    );
 
-                                                W::consumer_queue()->enqueue(@events);
+                                                    W::consumer_queue()->enqueue(@events);
+                                                }
                                             } else {
                                                 W::log(
                                                     [
