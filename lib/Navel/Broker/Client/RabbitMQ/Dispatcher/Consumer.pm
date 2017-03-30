@@ -13,13 +13,13 @@ use AnyEvent::RabbitMQ 1.19;
 
 use Navel::Utils::Broker::Client::RabbitMQ;
 use Navel::Logger::Message;
-use Navel::Utils 'decode_sereal_constructor';
+use Navel::Utils 'json_constructor';
 
 #-> class variables
 
 my $net;
 
-my $decode_sereal_constructor = decode_sereal_constructor;
+my $json_constructor = json_constructor;
 
 #-> functions
 
@@ -111,7 +111,7 @@ sub connect {
                                             local $@;
 
                                             my @events = eval {
-                                                @{$decode_sereal_constructor->decode(shift->{body}->{payload})};
+                                                @{$json_constructor->decode(shift->{body}->{payload})};
                                             };
 
                                             unless ($@) {

@@ -13,13 +13,13 @@ use AnyEvent::RabbitMQ 1.19;
 
 use Navel::Utils::Broker::Client::RabbitMQ;
 use Navel::Logger::Message;
-use Navel::Utils 'encode_sereal_constructor';
+use Navel::Utils 'json_constructor';
 
 #-> class variables
 
 my $net;
 
-my $encode_sereal_constructor = encode_sereal_constructor;
+my $json_constructor = json_constructor;
 
 #-> functions
 
@@ -59,7 +59,7 @@ sub publish {
                 header => {
                     delivery_mode => 2
                 },
-                body => $encode_sereal_constructor->encode($events),
+                body => $json_constructor->encode($events),
                 on_inactive => sub {
                     W::log(
                         [
