@@ -1,11 +1,11 @@
 # Copyright (C) 2015-2017 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
-# navel-bc-rabbitmq is licensed under the Apache License, Version 2.0
+# navel-broker-client-backend-rabbitmq is licensed under the Apache License, Version 2.0
 
 #-> BEGIN
 
 #-> initialization
 
-package Navel::Utils::Broker::Client::RabbitMQ 0.1;
+package Navel::Utils::Broker::Client::Backend::RabbitMQ 0.1;
 
 use Navel::Base;
 
@@ -130,7 +130,7 @@ __END__
 
 =head1 NAME
 
-Navel::Utils::Broker::Client::RabbitMQ
+Navel::Utils::Broker::Client::Backend::RabbitMQ
 
 =head1 COPYRIGHT
 
@@ -138,6 +138,6 @@ Copyright (C) 2015-2017 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 
 =head1 LICENSE
 
-navel-bc-rabbitmq is licensed under the Apache License, Version 2.0
+navel-broker-client-backend-rabbitmq is licensed under the Apache License, Version 2.0
 
 =cut
