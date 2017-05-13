@@ -108,8 +108,6 @@ sub connect {
                                         on_failure => $connect_on_failure,
                                         on_cancel => $connect_on_failure,
                                         on_consume => sub {
-                                            local $@;
-
                                             my @events = eval {
                                                 @{$json_constructor->decode(shift->{body}->{payload})};
                                             };
